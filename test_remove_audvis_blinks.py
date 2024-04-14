@@ -6,7 +6,7 @@ Name: test_remove_audvis_blinks.py
 Description: Functions which test the code written for lab 5 (whether or not artifacts are removed from the data successfully)
 Authors: Ashley Heath, Arthur Dolimier
 """
-from remove_audvis_blinks import load_data, plot_components
+from remove_audvis_blinks import load_data, plot_components, get_sources
 
 #%%%
 data = load_data("AudVisData.npy", [1, 29, 58])
@@ -29,3 +29,5 @@ plot_components_path = plot_components(data['mixing_matrix'], channels_names)
 - In the other components is it hard to know for sure that they are caused by an artifact. 
 """
 
+sources_to_plot_example = [0, 2, 10]
+source_activations_example = get_sources(data["eeg"], data["unmixing_matrix"], data["fs"], sources_to_plot_example)

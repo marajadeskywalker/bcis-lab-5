@@ -82,3 +82,50 @@ def plot_components(mixing_matrix, channels, components_to_plot=None):
     plt.show()
 
     fig.savefig('ICA_topomaps.png')
+
+
+def get_sources(eeg, unmixing_matrix, fs, sources_to_plot=None):
+    """
+    Transforms EEG data into source space using the provided unmixing matrix and plots the activity of specified sources.
+
+    Parameters:
+    - eeg (numpy.ndarray): The EEG data array, with shape (n_channels, n_samples).
+    - unmixing_matrix (numpy.ndarray): The ICA unmixing matrix, with shape (n_components, n_channels).
+    - fs (float): The sampling rate of the EEG data.
+    - sources_to_plot (list of int, optional): The indices of the sources to plot. Default is an empty list, which means no plots are generated.
+
+    Returns:
+    - U (numpy.ndarray): The source activation timecourses obtained from the transformation, with shape (n_components, n_samples).
+    """
+    if sources_to_plot is None:
+        sources_to_plot = []
+
+    # Perform matrix multiplication to transform the EEG data into source space
+    U = np.dot(unmixing_matrix, eeg)
+
+    # If there are sources to be plotted, generate the plots
+    if sources_to_plot:
+        # Determine the time axis based on the sampling rate and number of samples
+        time_axis = np.arange(eeg.shape[1]) / fs
+
+        # Create a figure for plotting
+        fig, axs = plt.subplots(len(sources_to_plot), 1, figsize=(10, len(sources_to_plot) * 2), sharex=True)
+
+        # If there's only one source to plot, axs may not be an array
+        if not isinstance(axs, np.ndarray):
+            axs = [axs]
+
+        for ax, source_index in zip(axs, sources_to_plot):
+            ax.plot(time_axis, U[source_index, :], label=f'reconstructed')
+            ax.set_xlabel('time (s)')
+            ax.set_ylabel(f'Source {source_index} (uV)')
+            # ax.set_xlim([55, 60])
+            ax.legend()
+
+        plt.suptitle("AudVis EEG Data in ICA source space")
+        plt.tight_layout()
+        plt.show()
+
+        fig.savefig('AudVisICA_source.png')
+
+    return U
