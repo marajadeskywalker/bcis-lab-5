@@ -6,9 +6,13 @@ Name: remove_audvis_blinks.py
 Description: Defines functions to remove artifacts from data containing multiple electrodes.
 Authors: Ashley Heath, Arthur Dolimier
 """
+import matplotlib as mtp
 #import libraries
 import numpy as np
 from matplotlib import pyplot as plt
+# mtp.use('TkAgg')
+from plot_topo import plot_topo
+
 
 #%%
 def load_data(data_dictionary, channels_to_plot=None):
@@ -38,6 +42,35 @@ def load_data(data_dictionary, channels_to_plot=None):
         plt.xlim(55, 60)
         plt.tight_layout()
         
-        return data
-    else:
-        return data
+    return data
+
+
+def plot_components(mixing_matrix, channels, components_to_plot=None):
+    if components_to_plot is None:
+        components_to_plot = list(range(10))  # Default to plot the first 10 components
+
+    # Define the layout of the subplots
+    num_rows = 2
+    num_columns = 5
+
+    fig = plt.figure(2, figsize=(20, 10))
+
+    # Loop over each component to plot
+    for index, component in enumerate(components_to_plot):
+        # Extract the current component data from the mixing matrix
+        component_data = mixing_matrix[:, component]
+
+        # Create a new axis instance in the correct position
+        plt.subplot(num_rows, num_columns, index + 1)
+
+        # Call the plot_topo function to plot the topomap on the current axis
+        plot_topo(channel_names=channels, channel_data=component_data, title=f'ICA component {component}',
+                  cbar_label='', montage_name='standard_1005')
+
+    # Tighten the layout
+    plt.tight_layout()
+
+    # show
+    plt.show()
+
+    fig.savefig('ICA_topomaps.png')

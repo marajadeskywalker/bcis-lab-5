@@ -6,10 +6,10 @@ Name: test_remove_audvis_blinks.py
 Description: Functions which test the code written for lab 5 (whether or not artifacts are removed from the data successfully)
 Authors: Ashley Heath, Arthur Dolimier
 """
-from remove_audvis_blinks import load_data
+from remove_audvis_blinks import load_data, plot_components
 
 #%%%
-load_data("AudVisData.npy", [1, 29, 58])
+data = load_data("AudVisData.npy", [1, 29, 58])
 
 """
 I believe that a blink occurred at slightly after 59 seconds. All of the three channels display a significant voltage spike at this time, 
@@ -18,3 +18,14 @@ The blink registers most clearly on the Fpz electrode, and least clearly on the 
 they're in more or less a straight line from the front to the back of the brain, and Fpz is the electrode closest to the front. It's therefore closest 
 to the electrical disruption of the blink.
 """
+
+channels_names = data['channels'].tolist()  # Convert to list for the plotting function
+plot_components_path = plot_components(data['mixing_matrix'], channels_names)
+
+"""
+- Component 0 displays a frontal dominant distribution with symmetry, which could be associated with blinks or vertical eye movements.
+- Component 1 shows a high-intensity area over the frontal scalp, which indicates frontal EEG activity but could also be due to blinks, given the proximity to the eyes.
+- Component 2 shows significant frontal lobe activity but it is mostly uniform which suggests that it is most likely brain activity.
+- In the other components is it hard to know for sure that they are caused by an artifact. 
+"""
+
