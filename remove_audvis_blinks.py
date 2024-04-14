@@ -46,6 +46,14 @@ def load_data(data_dictionary, channels_to_plot=None):
 
 
 def plot_components(mixing_matrix, channels, components_to_plot=None):
+    """
+    Plots the Independent Component Analysis (ICA) components' topographies.
+
+    Parameters:
+    - mixing_matrix (numpy.ndarray): The ICA mixing matrix where each column represents the weights of a component across the EEG channels.
+    - channels (list of str): A list of channel names corresponding to the EEG data.
+    - components_to_plot (list of int, optional): A list of component indices to be plotted. If not specified, the first ten components are plotted by default.
+    """
     if components_to_plot is None:
         components_to_plot = list(range(10))  # Default to plot the first 10 components
 
