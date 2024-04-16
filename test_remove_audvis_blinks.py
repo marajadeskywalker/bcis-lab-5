@@ -28,6 +28,9 @@ plot_components_path = plot_components(data['mixing_matrix'], channels_names)
 - Component 2 shows significant frontal lobe activity but it is mostly uniform which suggests that it is most likely brain activity.
 - In the other components is it hard to know for sure that they are caused by an artifact. 
 """
-
 sources_to_plot_example = [0, 2, 10]
 source_activations_example = get_sources(data["eeg"], data["unmixing_matrix"], data["fs"], sources_to_plot_example)
+
+#%%
+cleaned_eeg = remove_sources(source_activations_example.copy(), data["mixing_matrix"], [0, 1])
+reconstructed_eeg = remove_sources(source_activations_example.copy(), data["mixing_matrix"], [])
