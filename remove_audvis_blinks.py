@@ -129,3 +129,26 @@ def get_sources(eeg, unmixing_matrix, fs, sources_to_plot=None):
         fig.savefig('AudVisICA_source.png')
 
     return U
+    
+def remove_sources(source_activations, mixing_matrix, sources_to_remove):
+    """
+    Function to remove artifacts from the data by zeroing selected sources using the mixing matrix.
+    
+    Parameters:
+    - source_activations (array): The source activation timecourses obtained from the transformation, with shape (n_components, n_samples), and type float
+    - mixing_matrix (array): The ICA mixing matrix where each column represents the weights of a component across the EEG channels, with shape(n_components, n_channels) and type float
+    - sources_to_remove (array): a list/array of the indices of the sources that you would like removed from the data, with shape (n x 1) and type int, n being the number of sources being removed from the data. 
+    
+    Returns:
+    - cleaned_eeg (array): The cleaned eeg data with the selected sources removed, transformed back into electrode space. Has shape (n_components, n_channels), and type float
+    """
+    if sources_to_remove is not None and len(sources_to_remove) > 0: 
+        #given indices of signals set to zero: set those to zero
+        for source_index in sources_to_remove:
+            source_activations[source_index] = np.zeros(np.shape(source_activations)[1])
+        
+    #multiply source activations by mixing matrix and this will give you electrode data.
+    cleaned_eeg = np.matmul(mixing_matrix, source_activations)
+
+    #return electrode data
+    return cleaned_eeg
