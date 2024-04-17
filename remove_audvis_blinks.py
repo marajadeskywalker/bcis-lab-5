@@ -152,3 +152,35 @@ def remove_sources(source_activations, mixing_matrix, sources_to_remove):
 
     #return electrode data
     return cleaned_eeg
+
+
+def compare_reconstructions(eeg, reconstructed_eeg, cleaned_eeg, fs, channels, channels_to_plot):
+    """
+    Compares original, reconstructed, and cleaned EEG signals on selected channels.
+
+    Parameters:
+    - eeg (numpy.ndarray): Original EEG data, shape (n_channels, n_samples).
+    - reconstructed_eeg (numpy.ndarray): EEG data reconstructed from ICA sources, shape (n_channels, n_samples).
+    - cleaned_eeg (numpy.ndarray): EEG data after artifact removal, shape (n_channels, n_samples).
+    - fs (float): Sampling frequency of the EEG data.
+    - channels (list of str): Names of all EEG channels.
+    - channels_to_plot (list of int): Indices of channels to plot.
+    """
+    time_axis = np.arange(eeg.shape[1]) / fs
+    fig, axs = plt.subplots(len(channels_to_plot), 1, figsize=(12, 3 * len(channels_to_plot)), sharex=True)
+
+    if len(channels_to_plot) == 1:
+        axs = [axs]  # Make sure axs is always a list for consistent indexing
+
+    for ax, channel_index in zip(axs, channels_to_plot):
+        ax.plot(time_axis, eeg[channel_index, :], '-', label='raw', linewidth=2, alpha=0.65, color="blue")
+        ax.plot(time_axis, reconstructed_eeg[channel_index, :], '--', label='reconstructed', linewidth=1.5, alpha=0.85, color='xkcd:bright orange')
+        ax.plot(time_axis, cleaned_eeg[channel_index, :], 'g:', label='cleaned', linewidth=1, alpha=0.8)
+        ax.set_xlabel('Time (s)')
+        ax.set_xlim([55, 60])
+        ax.set_ylabel(f'Voltage on {channels[channel_index]} (uV)')
+        ax.legend(loc='upper right')
+
+    plt.suptitle("Audvis EEG Data reconstructed & cleaned after ICA")
+    plt.tight_layout()
+    plt.show()
