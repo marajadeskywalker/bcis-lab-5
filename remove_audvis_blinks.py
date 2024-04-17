@@ -7,14 +7,14 @@ Description: Defines functions to remove artifacts from data containing multiple
 Authors: Ashley Heath, Arthur Dolimier
 """
 import matplotlib as mtp
-#import libraries
+# import libraries
 import numpy as np
 from matplotlib import pyplot as plt
 # mtp.use('TkAgg')
 from plot_topo import plot_topo
 
 
-#%%
+# %%
 def load_data(data_dictionary, channels_to_plot=None):
     """
     Loads in raw EEG Audvis data as a dictionary and plots user-selected channels.
@@ -26,22 +26,23 @@ def load_data(data_dictionary, channels_to_plot=None):
         - data, dictionary, a dictionary containing the information that 
     """
     data = np.load(data_dictionary, allow_pickle=True).item()
-    
-    #if there are channels to be plotted:
+
+    # if there are channels to be plotted:
     if channels_to_plot is not None:
-        #create the overall figure
-        figure, axis = plt.subplots(len(channels_to_plot),1, sharex=True)
+        # create the overall figure
+        figure, axis = plt.subplots(len(channels_to_plot), 1, sharex=True)
         figure.suptitle("Raw AudVis EEG Data")
-        
-        #iterate over channels to be plotted and plot each
+
+        # iterate over channels to be plotted and plot each
         for channel_index in range(len(channels_to_plot)):
-            axis[channel_index].plot(np.arange(0, 41700, 1)/data['fs'], data["eeg"][channels_to_plot[channel_index],:])
+            axis[channel_index].plot(np.arange(0, 41700, 1) / data['fs'],
+                                     data["eeg"][channels_to_plot[channel_index], :])
             axis[channel_index].set_xlabel("time (s)")
             axis[channel_index].set_ylabel(f"Voltage on {data['channels'][channels_to_plot[channel_index]]} (uV)")
-        #zoom and scale plots
+        # zoom and scale plots
         plt.xlim(55, 60)
         plt.tight_layout()
-        
+
     return data
 
 
@@ -129,7 +130,8 @@ def get_sources(eeg, unmixing_matrix, fs, sources_to_plot=None):
         fig.savefig('AudVisICA_source.png')
 
     return U
-    
+
+
 def remove_sources(source_activations, mixing_matrix, sources_to_remove):
     """
     Function to remove artifacts from the data by zeroing selected sources using the mixing matrix.
@@ -142,15 +144,15 @@ def remove_sources(source_activations, mixing_matrix, sources_to_remove):
     Returns:
     - cleaned_eeg (array): The cleaned eeg data with the selected sources removed, transformed back into electrode space. Has shape (n_components, n_channels), and type float
     """
-    if sources_to_remove is not None and len(sources_to_remove) > 0: 
-        #given indices of signals set to zero: set those to zero
+    if sources_to_remove is not None and len(sources_to_remove) > 0:
+        # given indices of signals set to zero: set those to zero
         for source_index in sources_to_remove:
             source_activations[source_index] = np.zeros(np.shape(source_activations)[1])
-        
-    #multiply source activations by mixing matrix and this will give you electrode data.
+
+    # multiply source activations by mixing matrix and this will give you electrode data.
     cleaned_eeg = np.matmul(mixing_matrix, source_activations)
 
-    #return electrode data
+    # return electrode data
     return cleaned_eeg
 
 
@@ -159,7 +161,7 @@ def compare_reconstructions(eeg, reconstructed_eeg, cleaned_eeg, fs, channels, c
     Compares original, reconstructed, and cleaned EEG signals on selected channels.
 
     Parameters:
-    - eeg (numpy.ndarray): Original EEG data, shape (n_channels, n_samples).
+    - eeg (numpy.ndarray): The EEG data array, with shape (n_channels, n_samples).
     - reconstructed_eeg (numpy.ndarray): EEG data reconstructed from ICA sources, shape (n_channels, n_samples).
     - cleaned_eeg (numpy.ndarray): EEG data after artifact removal, shape (n_channels, n_samples).
     - fs (float): Sampling frequency of the EEG data.
@@ -169,15 +171,17 @@ def compare_reconstructions(eeg, reconstructed_eeg, cleaned_eeg, fs, channels, c
     time_axis = np.arange(eeg.shape[1]) / fs
     fig, axs = plt.subplots(len(channels_to_plot), 1, figsize=(12, 3 * len(channels_to_plot)), sharex=True)
 
-    if len(channels_to_plot) == 1:
-        axs = [axs]  # Make sure axs is always a list for consistent indexing
+    # If there's only one source to plot, axs may not be an array
+    if not isinstance(axs, np.ndarray):
+        axs = [axs]
 
     for ax, channel_index in zip(axs, channels_to_plot):
         ax.plot(time_axis, eeg[channel_index, :], '-', label='raw', linewidth=2, alpha=0.65, color="blue")
-        ax.plot(time_axis, reconstructed_eeg[channel_index, :], '--', label='reconstructed', linewidth=1.5, alpha=0.85, color='xkcd:bright orange')
+        ax.plot(time_axis, reconstructed_eeg[channel_index, :], '--', label='reconstructed', linewidth=1.5, alpha=0.85,
+                color='xkcd:bright orange')
         ax.plot(time_axis, cleaned_eeg[channel_index, :], 'g:', label='cleaned', linewidth=1, alpha=0.8)
         ax.set_xlabel('Time (s)')
-        ax.set_xlim([55, 60])
+        # ax.set_xlim([55, 60])
         ax.set_ylabel(f'Voltage on {channels[channel_index]} (uV)')
         ax.legend(loc='upper right')
 
